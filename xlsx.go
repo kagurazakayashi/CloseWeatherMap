@@ -7,15 +7,19 @@ import (
 	"github.com/xuri/excelize/v2"
 )
 
-func loadXLSX() [][]string {
+func loadXLSX(loginfo bool) [][]string {
 	f, err := excelize.OpenFile(xlsxFilePath)
 	if err != nil {
-		log.Println("错误：打开文件", xlsxFilePath, "失败:", err.Error())
+		if loginfo {
+			log.Println("错误：打开文件", xlsxFilePath, "失败:", err.Error())
+		}
 		return [][]string{}
 	}
 
 	sheetList := f.GetSheetList()
-	log.Println("表格列表:", strings.Join(sheetList, ","), "。正在加载数据表 Sheet1 ...")
+	if loginfo {
+		log.Println("表格列表:", strings.Join(sheetList, ","), "。正在加载数据表 Sheet1 ...")
+	}
 	if !stringInSlice("Sheet1", sheetList) {
 		log.Println("错误：数据表 Sheet1 不存在。")
 		return [][]string{}
