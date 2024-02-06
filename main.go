@@ -8,10 +8,13 @@ import (
 var (
 	xlsxFilePath string
 	datas        [][]string
+	listenHost   string
 )
 
 func main() {
+	log.Println("XLSWeather 1.0.0")
 	flag.StringVar(&xlsxFilePath, "f", "", "XLSX 文件路径")
+	flag.StringVar(&listenHost, "l", "127.0.0.1:80", "监听地址")
 	flag.Parse()
 
 	if len(xlsxFilePath) < 6 {
@@ -25,6 +28,8 @@ func main() {
 		return
 	}
 	log.Println("数据量:", len(datas))
+
+	initweb()
 }
 
 func stringInSlice(str string, list []string) bool {
