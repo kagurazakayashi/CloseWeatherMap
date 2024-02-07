@@ -4,10 +4,12 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func initweb() bool {
 	http.HandleFunc(uri, handlerRoot)
+	log.Println("启动 HTTP 服务: http://" + listenHost + uri)
 	err := http.ListenAndServe(listenHost, nil)
 	if err != nil {
 		log.Println("错误：无法启动 HTTP 服务:", err.Error())
@@ -62,12 +64,17 @@ func handlerRoot(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(info))
 		return
 	}
-	w.Write([]byte("OK"))
+	var row []string = nowTimeData(time.Now())
+	log.Println(row)
 }
 
 func chkAPPID(appid string) bool {
-	if len(appids) == 0 {
+	var appidLen int = len(appids)
+	if appidLen == 0 {
 		return true
+	}
+	if appidLen != 32 {
+		return false
 	}
 	if checkIfStringExists(appids, appid) {
 		return true

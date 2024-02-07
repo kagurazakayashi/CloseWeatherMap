@@ -7,7 +7,9 @@ import (
 
 var (
 	xlsxFilePath string
+	titles       []string
 	datas        [][]string
+	dataLen      int
 	listenHost   string
 	appids       string
 	uri          string
@@ -26,14 +28,18 @@ func main() {
 		return
 	}
 
-	log.Println("正在加载数据文件:", xlsxFilePath)
-	datas = loadXLSX(true)
-	if len(datas) == 0 {
-		return
-	}
-	log.Println("数据量:", len(datas))
+	reloadXLSX()
 
 	if !initweb() {
 		return
 	}
+}
+
+func reloadXLSX() {
+	titles, datas = loadXLSX(true)
+	if len(datas) == 0 || len(titles) == 0 {
+		return
+	}
+	dataLen = len(datas)
+	log.Println("读取文件:", xlsxFilePath, "完成，数据量:", dataLen)
 }
