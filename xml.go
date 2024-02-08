@@ -33,7 +33,7 @@ func genDic(row []string) map[string]string {
 		if stringInSlice(key, ignoreKeys) {
 			continue
 		}
-		dataDic[key] = row[id]
+		dataDic[key] = trimExtraWhitespace(row[id])
 	}
 	return dataDic
 }
@@ -43,8 +43,8 @@ func genXML(dic map[string]string) string {
 	current.Temperature.Value = dic["temperature"]
 	current.Humidity.Value = dic["humidity"]
 	current.Pressure.Value = dic["pressure"]
-	current.Wind.Speed.Value = dic["windspeed"]
-	current.Wind.Direction.Value = dic["winddirection"]
+	current.Wind.Speed.Value = dic["wind"]
+	current.Wind.Direction.Value = dic["direction"]
 	current.Weather.Number = dic["weather"]
 	output, err := xml.MarshalIndent(current, "", "    ")
 	if err != nil {

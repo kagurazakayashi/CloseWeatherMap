@@ -1,6 +1,9 @@
 package main
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 func stringInSlice(str string, list []string) bool {
 	for _, v := range list {
@@ -19,4 +22,27 @@ func checkIfStringExists(strs, str string) bool {
 		}
 	}
 	return false
+}
+
+func trimExtraWhitespace(str string) string {
+	var builder strings.Builder
+	inWhitespace := false
+
+	for _, runeValue := range str {
+		if unicode.IsSpace(runeValue) {
+			if !inWhitespace && builder.Len() > 0 {
+				builder.WriteRune(' ')
+			}
+			inWhitespace = true
+		} else {
+			builder.WriteRune(runeValue)
+			inWhitespace = false
+		}
+	}
+	result := builder.String()
+	if inWhitespace && len(result) > 0 {
+		result = result[:len(result)-1]
+	}
+
+	return result
 }
