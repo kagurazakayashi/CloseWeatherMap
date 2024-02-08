@@ -20,7 +20,7 @@ func initweb() bool {
 
 func handlerRoot(w http.ResponseWriter, r *http.Request) {
 	// ?lat=48.0061&lon=0.1996&APPID=32bit&mode=xml&units=metric
-	log.Println(r.URL.Path + "?" + r.URL.RawQuery)
+	log.Println("<- " + r.URL.Path + "?" + r.URL.RawQuery)
 	var info string = ""
 	var appid string = r.FormValue("APPID")
 	if !chkAPPID(appid) {
@@ -65,7 +65,9 @@ func handlerRoot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var row []string = nowTimeData(time.Now())
-	log.Println(row)
+	var response string = genXML(genDic(row))
+	log.Println("->", response)
+	w.Write([]byte(response))
 }
 
 func chkAPPID(appid string) bool {
