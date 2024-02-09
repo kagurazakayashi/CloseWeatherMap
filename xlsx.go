@@ -64,7 +64,16 @@ func genTime(timeData string) (bool, time.Time) {
 }
 
 func nowTimeData(nowTime time.Time) []string {
+	var daysApart int = daysApart(baseDayDate, nowTime) + 1
 	for i, row := range datas {
+		rowDay, err := strconv.Atoi(row[0])
+		if err != nil {
+			continue
+		}
+		// fmt.Println("日期", daysApart)
+		if rowDay != daysApart {
+			continue
+		}
 		isOK, startTime := genTime(row[1])
 		if !isOK {
 			continue
@@ -77,6 +86,7 @@ func nowTimeData(nowTime time.Time) []string {
 				continue
 			}
 			endTime = endTime.Add(-1 * time.Nanosecond)
+			// fmt.Println("时间区间", startTime, "到", endTime)
 			if nowTime.After(startTime) && nowTime.Before(endTime) {
 				return row
 			}

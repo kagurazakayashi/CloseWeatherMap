@@ -64,7 +64,26 @@ func handlerRoot(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(info))
 		return
 	}
+	var date string = r.FormValue("date")
+	if len(date) != 0 && len(date) != 8 {
+		info = "错误：无效的日期: " + date
+		log.Println(info)
+		w.WriteHeader(400)
+		w.Write([]byte(info))
+		return
+	}
+	if len(date) == 8 {
+		genBaseDay(date)
+	}
+
 	var row []string = nowTimeData(time.Now())
+	if len(row) == 0 {
+		info = "错误：没有查询到数据。"
+		log.Println(info)
+		w.WriteHeader(404)
+		w.Write([]byte(info))
+		return
+	}
 	var response string = genXML(genDic(row))
 	log.Println("->", response)
 	w.Write([]byte(response))
