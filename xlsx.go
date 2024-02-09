@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -43,7 +44,41 @@ func loadXLSX(loginfo bool) ([]string, [][]string) {
 	// 	fmt.Println(i, row)
 	// }
 
-	return rows[0], rows[1:]
+	return rows[0], reCalcDays(rows[1:])
+}
+
+func reCalcDays(rows [][]string) [][]string {
+	var isFirst bool = true
+	var oldHour int = -1
+	var nDay int = 0
+	for i, row := range rows {
+		var days string = trimExtraWhitespace(row[0])
+		var time string = trimExtraWhitespace(row[1])
+		var timeArr []string = strings.Split(time, ":")
+		day, err := strconv.Atoi(days)
+		if err != nil {
+			continue
+		}
+		hour, err := strconv.Atoi(timeArr[0])
+		if err != nil {
+			continue
+		}
+		if isFirst {
+			oldHour = hour
+			nDay = day
+			isFirst = false
+		} else {
+			if hour < oldHour {
+				nDay++
+			}
+			oldHour = hour
+		}
+		rows[i][0] = strconv.Itoa(nDay)
+		timeArr[0] = strconv.Itoa(hour)
+		rows[i][1] = strings.Join(timeArr, ":")
+		fmt.Println(rows[i])
+	}
+	return rows
 }
 
 func genTime(timeData string) (bool, time.Time) {
@@ -70,7 +105,7 @@ func nowTimeData(nowTime time.Time) []string {
 		if err != nil {
 			continue
 		}
-		// fmt.Println("日期", daysApart)
+		// fmt.Println("序号", i, "日期", daysApart)
 		if rowDay != daysApart {
 			continue
 		}
