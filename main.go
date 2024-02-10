@@ -17,6 +17,7 @@ var (
 	uri          string
 	baseDay      string // YYYYMMDD
 	baseDayDate  time.Time
+	forceReload  bool
 )
 
 func main() {
@@ -26,6 +27,7 @@ func main() {
 	flag.StringVar(&listenHost, "l", "127.0.0.1:80", "HTTP 接口所使用的 <IP>:<端口号>，不提供 IP 则允许所有 IP。")
 	flag.StringVar(&uri, "u", "/data/2.5/weather", "HTTP 接口的 URI。")
 	flag.StringVar(&appids, "a", "", "限制只有指定的几个 APPID 才能访问，使用英文逗号分隔。留空则不限制。")
+	flag.BoolVar(&forceReload, "r", false, "强制重新加载 XLSX 文件。")
 	flag.Parse()
 
 	if len(xlsxFilePath) < 6 {

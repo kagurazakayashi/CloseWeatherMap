@@ -33,6 +33,7 @@ func loadXLSX(loginfo bool) ([]string, [][]string) {
 		log.Println("错误：加载数据表 Sheet1 失败。")
 		return []string{}, [][]string{}
 	}
+	f.Close()
 
 	// cellValue, err := f.GetCellValue("Sheet1", "B3")
 	// if err != nil {

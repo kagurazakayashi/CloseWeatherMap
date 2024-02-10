@@ -75,7 +75,9 @@ func handlerRoot(w http.ResponseWriter, r *http.Request) {
 	if len(date) == 8 {
 		genBaseDay(date)
 	}
-
+	if forceReload {
+		reloadXLSX()
+	}
 	var row []string = nowTimeData(time.Now())
 	if len(row) == 0 {
 		info = "错误：没有查询到数据。"
