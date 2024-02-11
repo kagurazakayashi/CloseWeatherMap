@@ -4,7 +4,6 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 func initweb() bool {
@@ -78,7 +77,7 @@ func handlerRoot(w http.ResponseWriter, r *http.Request) {
 	if forceReload {
 		reloadXLSX()
 	}
-	var row []string = nowTimeData(time.Now())
+	var row []string = nowTimeData(nowTime())
 	if len(row) == 0 {
 		info = "错误：没有查询到数据。"
 		log.Println(info)

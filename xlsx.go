@@ -83,7 +83,7 @@ func reCalcDays(rows [][]string) [][]string {
 }
 
 func genTime(timeData string) (bool, time.Time) {
-	var nowTime time.Time = time.Now()
+	var nowTime time.Time = nowTime()
 	var timeArr []string = strings.Split(timeData, ":")
 	if len(timeArr) != 2 {
 		return false, time.Time{}
