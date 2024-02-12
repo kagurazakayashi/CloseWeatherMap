@@ -77,13 +77,18 @@ func reCalcDays(rows [][]string) [][]string {
 		rows[i][0] = strconv.Itoa(nDay)
 		timeArr[0] = strconv.Itoa(hour)
 		rows[i][1] = strings.Join(timeArr, ":")
-		fmt.Println(rows[i])
+		if verbose {
+			fmt.Println(rows[i])
+		}
 	}
 	return rows
 }
 
 func genTime(timeData string) (bool, time.Time) {
 	var nowTime time.Time = nowTime()
+	if timeData == "0" {
+		timeData = "0:00"
+	}
 	var timeArr []string = strings.Split(timeData, ":")
 	if len(timeArr) != 2 {
 		return false, time.Time{}
@@ -99,31 +104,62 @@ func genTime(timeData string) (bool, time.Time) {
 	return true, time.Date(nowTime.Year(), nowTime.Month(), nowTime.Day(), startHour, startMinute, 0, 0, time.Local)
 }
 
+func isCurrentTimeInRange(currentTime, startTime, endTime time.Time) bool {
+	if startTime.After(endTime) {
+		return false
+	}
+	if currentTime.Before(startTime) {
+		return false
+	}
+	if currentTime.After(endTime) {
+		return false
+	}
+	return true
+}
+
 func nowTimeData(nowTime time.Time) []string {
-	var daysApart int = daysApart(baseDayDate, nowTime) + 1
+	// var daysApart int = daysApart(baseDayDate, nowTime) + 1
 	for i, row := range datas {
 		rowDay, err := strconv.Atoi(row[0])
 		if err != nil {
 			continue
 		}
-		// fmt.Println("序号", i, "日期", daysApart)
-		if rowDay != daysApart {
-			continue
+		if verbose {
+			fmt.Println("行", i, ":", row)
 		}
+		// if rowDay > daysApart {
+		// 	break
+		// }
+		// if rowDay != daysApart {
+		// 	continue
+		// }
 		isOK, startTime := genTime(row[1])
 		if !isOK {
 			continue
 		}
+		if rowDay-1 > 0 {
+			startTime = startTime.AddDate(0, 0, rowDay-1)
+		}
 		if i == len(datas)-1 {
+			fmt.Println("达到数据末尾。")
 			return row
 		} else {
 			isOK, endTime := genTime(datas[i+1][1])
 			if !isOK {
 				continue
 			}
-			endTime = endTime.Add(-1 * time.Nanosecond)
-			// fmt.Println("时间区间", startTime, "到", endTime)
-			if nowTime.After(startTime) && nowTime.Before(endTime) {
+			if rowDay-1 > 0 {
+				endTime = endTime.AddDate(0, 0, rowDay-1)
+			}
+			if datas[i][0] != datas[i+1][0] {
+				endTime = endTime.AddDate(0, 0, 1)
+			}
+			endTime = endTime.Add(-1 * time.Second)
+			isOK = isCurrentTimeInRange(nowTime, startTime, endTime)
+			if verbose {
+				fmt.Println("[", isOK, "]时间", nowTime.Format(timeLayout), "于", startTime.Format(timeLayout), "到", endTime.Format(timeLayout))
+			}
+			if isOK {
 				return row
 			}
 		}

@@ -23,6 +23,7 @@ var (
 	lockTimeStr  string
 	lockTime     time.Time
 	timeLayout   string = "2006-01-02 15:04:05"
+	verbose      bool
 )
 
 func main() {
@@ -34,6 +35,7 @@ func main() {
 	flag.StringVar(&appids, "a", "", "限制只有指定的几个 APPID 才能访问，使用英文逗号分隔。留空则不限制。")
 	flag.BoolVar(&forceReload, "r", false, "强制重新加载 XLSX 文件。")
 	flag.StringVar(&lockTimeStr, "t", "", "强制按指定时间提供数据，格式示例: 2006-01-02 15:04:05")
+	flag.BoolVar(&verbose, "v", false, "显示详细信息用于调试。")
 	flag.Parse()
 
 	if len(xlsxFilePath) < 6 {
@@ -42,7 +44,7 @@ func main() {
 	}
 
 	if len(lockTimeStr) > 0 {
-		lockTimeN, err := time.Parse(timeLayout, lockTimeStr)
+		lockTimeN, err := time.ParseInLocation(timeLayout, lockTimeStr, time.Local)
 		if err != nil {
 			log.Println("错误：时间格式不正确，使用当前时间。")
 		}
@@ -60,6 +62,7 @@ func main() {
 		"HTTP 接口地址: " + listenHost + uri,
 		"APPID 限制: " + appids,
 		"强制重新加载: " + strconv.FormatBool(forceReload),
+		"详细信息: " + strconv.FormatBool(verbose),
 	}, "\n"))
 
 	reloadXLSX()
