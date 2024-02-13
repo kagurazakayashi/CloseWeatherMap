@@ -22,6 +22,7 @@
 - `-a`: 限制只有指定的几个 APPID 才能访问，使用英文逗号分隔。留空则不限制。
 - `-t`: 强制按指定时间提供数据，格式示例: `"2006-01-02 15:04:05"` 。
 - `-v`: 显示详细信息用于调试。
+- `-rd`: 反转风向数据。
 
 示例: `xlsweather -f testdata.xlsx -r -d 20240331 -l :80 -u /data/2.5/weather -a GGEkzWHqaaua3pdyRjzp7RiwTkvEpimV`
 

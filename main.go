@@ -10,24 +10,25 @@ import (
 )
 
 var (
-	xlsxFilePath string
-	titles       []string
-	datas        [][]string
-	dataLen      int
-	listenHost   string
-	appids       string
-	uri          string
-	baseDay      string // YYYYMMDD
-	baseDayDate  time.Time
-	forceReload  bool
-	lockTimeStr  string
-	lockTime     time.Time
-	timeLayout   string = "2006-01-02 15:04:05"
-	verbose      bool
+	xlsxFilePath     string
+	titles           []string
+	datas            [][]string
+	dataLen          int
+	listenHost       string
+	appids           string
+	uri              string
+	baseDay          string // YYYYMMDD
+	baseDayDate      time.Time
+	forceReload      bool
+	lockTimeStr      string
+	lockTime         time.Time
+	timeLayout       string = "2006-01-02 15:04:05"
+	verbose          bool
+	reverseDirection bool
 )
 
 func main() {
-	log.Println("XLSWeather 1.0.0  " + time.Now().Format(timeLayout))
+	log.Println("XLSWeather 1.1.0  " + time.Now().Format(timeLayout))
 	flag.StringVar(&xlsxFilePath, "f", "", "XLSX 文件路径。")
 	flag.StringVar(&baseDay, "d", "", "基准日期(YYYYMMDD)，为空则为当前日期。")
 	flag.StringVar(&listenHost, "l", "127.0.0.1:80", "HTTP 接口所使用的 <IP>:<端口号>，不提供 IP 则允许所有 IP。")
@@ -36,6 +37,7 @@ func main() {
 	flag.BoolVar(&forceReload, "r", false, "强制重新加载 XLSX 文件。")
 	flag.StringVar(&lockTimeStr, "t", "", "强制按指定时间提供数据，格式示例: 2006-01-02 15:04:05")
 	flag.BoolVar(&verbose, "v", false, "显示详细信息用于调试。")
+	flag.BoolVar(&reverseDirection, "rd", false, "反转风向数据。")
 	flag.Parse()
 
 	if len(xlsxFilePath) < 6 {
@@ -63,6 +65,7 @@ func main() {
 		"APPID 限制: " + appids,
 		"强制重新加载: " + strconv.FormatBool(forceReload),
 		"详细信息: " + strconv.FormatBool(verbose),
+		"反转风向数据: " + strconv.FormatBool(reverseDirection),
 	}, "\n"))
 
 	reloadXLSX()
@@ -124,6 +127,7 @@ func reloadXLSX() {
 	if len(datas) == 0 || len(titles) == 0 {
 		return
 	}
+	datas = reverseDirectionDatas(datas)
 	dataLen = len(datas)
 	log.Println("读取文件:", xlsxFilePath, "完成，数据量:", dataLen)
 }

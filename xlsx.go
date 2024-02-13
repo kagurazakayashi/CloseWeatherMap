@@ -48,6 +48,24 @@ func loadXLSX(loginfo bool) ([]string, [][]string) {
 	return rows[0], reCalcDays(rows[1:])
 }
 
+func reverseDirectionDatas(rows [][]string) [][]string {
+	for i, row := range rows {
+		direction, err := strconv.Atoi(row[6])
+		if err != nil {
+			fmt.Println("错误：无法解析风向数据。")
+			continue
+		}
+		// 小于180+180 大于180-180
+		if direction < 180 {
+			direction += 180
+		} else if direction > 180 {
+			direction -= 180
+		}
+		rows[i][6] = strconv.Itoa(direction)
+	}
+	return rows
+}
+
 func reCalcDays(rows [][]string) [][]string {
 	var isFirst bool = true
 	var oldHour int = -1
