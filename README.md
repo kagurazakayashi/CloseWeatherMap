@@ -43,3 +43,7 @@
 参见 [示例电子表格文件 testdata.xlsx](testdata.xlsx) 。
 
 XLSX 电子表格文件中的天数部分，将会根据第一行和后续的时间重新进行计算。在程序启动时，会显示实际读入内存的数据集。
+
+## LICENSE
+
+Copyright (c) 2024 KagurazakaYashi XLSWeather is licensed under Mulan PSL v2. You can use this software according to the terms and conditions of the Mulan PSL v2. You may obtain a copy of Mulan PSL v2 at: http://license.coscl.org.cn/MulanPSL2 THIS SOFTWARE IS PROVIDED ON AN “AS IS” BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE. See the Mulan PSL v2 for more details.
