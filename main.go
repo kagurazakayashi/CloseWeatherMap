@@ -128,7 +128,15 @@ func reloadXLSX() {
 	if len(datas) == 0 || len(titles) == 0 {
 		return
 	}
-	datas = reverseDirectionDatas(datas)
+	datas = reverseDirectionAndTimeDatas(datas)
 	dataLen = len(datas)
+	if verbose {
+		for _, row := range titles {
+			fmt.Println(row)
+		}
+		for _, row := range datas {
+			fmt.Println(row)
+		}
+	}
 	log.Println("读取文件:", xlsxFilePath, "完成，数据量:", dataLen)
 }
