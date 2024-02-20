@@ -76,14 +76,6 @@ func main() {
 	}
 }
 
-func nowTime() time.Time {
-	if len(lockTimeStr) > 0 {
-		return lockTime
-	} else {
-		return time.Now()
-	}
-}
-
 func genBaseDay(baseDayI string) bool { // ->baseDayDate
 	if len(baseDayI) == 0 {
 		baseDayI = baseDay

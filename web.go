@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func initweb() bool {
@@ -71,13 +72,20 @@ func handlerRoot(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(info))
 		return
 	}
+	tzStr, tz := latLonToTimezone(latN, lonN)
+	var locTz *time.Location = time.Now().Location()
+	if verbose {
+		log.Println("输入时区:", tzStr, ",UTC", getUTCOffset(tz), "; 当前时区:", locTz.String(), ",UTC", getUTCOffset(locTz))
+	}
 	if len(date) == 8 {
 		genBaseDay(date)
 	}
 	if forceReload {
 		reloadXLSX()
 	}
-	var row []string = nowTimeData(nowTime())
+	var nowTime time.Time = nowTime()
+	nowTime = nowTime.In(tz)
+	var row []string = nowTimeData(nowTime)
 	if len(row) == 0 {
 		info = "错误：没有查询到数据。"
 		log.Println(info)

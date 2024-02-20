@@ -1,5 +1,7 @@
 github.com/akavel/rsrc v0.10.2 h1:Zxm8V5eI1hW4gGaYsJQUhxpjkENuG91ki8B4zCrvEsw=
 github.com/akavel/rsrc v0.10.2/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=
+github.com/bradfitz/latlong v0.0.0-20170410180902-f3db6d0dff40 h1:wsnz4B2CSHJ09pwtMReU/GRqWDsI7XSasq7Nphem3Xk=
+github.com/bradfitz/latlong v0.0.0-20170410180902-f3db6d0dff40/go.mod h1:ZcXX9BndVQx6Q/JM6B8x7dLE9sl20S+TQsv4KO7tEQk=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/josephspurrier/goversioninfo v1.4.0 h1:Puhl12NSHUSALHSuzYwPYQkqa2E1+7SrtAPJorKK0C8=
 github.com/josephspurrier/goversioninfo v1.4.0/go.mod h1:JWzv5rKQr+MmW+LvM412ToT/IkYDZjaclF2pKDss8IY=
@@ -19,6 +21,8 @@ github.com/xuri/excelize/v2 v2.8.1 h1:pZLMEwK8ep+CLIUWpWmvW8IWE/yxqG0I1xcN6cVMGu
 github.com/xuri/excelize/v2 v2.8.1/go.mod h1:oli1E4C3Pa5RXg1TBXn4ENCXDV5JUMlBluUhG7c+CEE=
 github.com/xuri/nfp v0.0.0-20230919160717-d98342af3f05 h1:qhbILQo1K3mphbwKh1vNm4oGezE1eF9fQWmNiIpSfI4=
 github.com/xuri/nfp v0.0.0-20230919160717-d98342af3f05/go.mod h1:WwHg+CVyzlv/TX9xqBFXEZAuxOPxn2k1GNHwG41IIUQ=
+github.com/zsefvlol/timezonemapper v1.0.0 h1:HXqkOzf01gXYh2nDQcDSROikFgMaximnhE8BY9SyF6E=
+github.com/zsefvlol/timezonemapper v1.0.0/go.mod h1:cVUCOLEmc/VvOMusEhpd2G/UBtadL26ZVz2syODXDoQ=
 golang.org/x/crypto v0.19.0 h1:ENy+Az/9Y1vSrlrvBSyna3PITt4tiZLf7sgCjZBX7Wo=
 golang.org/x/crypto v0.19.0/go.mod h1:Iy9bg/ha4yyC70EfRS8jz+B6ybOBKMaSxLj6P6oBDfU=
 golang.org/x/net v0.21.0 h1:AQyQV4dYCvJ7vGmJyKki9+PBdyvhkSd8EIx/qb0AYv4=
