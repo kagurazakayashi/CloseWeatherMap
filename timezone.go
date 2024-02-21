@@ -32,6 +32,11 @@ func latLonToTimezone(lat float64, lon float64) (string, *time.Location) {
 	return timezone, loc
 }
 
+func nameToTimezone(name string) *time.Location {
+	loc, _ := time.LoadLocation(name)
+	return loc
+}
+
 func getUTCOffset(loc *time.Location) int {
 	now := time.Now().In(loc)
 	_, offset := now.Zone()

@@ -21,6 +21,8 @@
 - `-t`: 强制按指定时间提供数据，格式示例: `"2006-01-02 15:04:05"` 。
 - `-v`: 显示详细信息用于调试。
 - `-rd`: 反转风向数据。
+- `-tc`: 强制客户端时区为指定的 IANA 时区名称，例如 `Europe/Paris` 。
+- `-ts`: 强制 XLSX 文件时区为指定的 IANA 时区名称，例如 `Asia/Tokyo` 。
 
 示例: `xlsweather -f testdata.xlsx -r -d 20240331 -l :80 -u /data/2.5/weather -a GGEkzWHqaaua3pdyRjzp7RiwTkvEpimV`
 

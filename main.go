@@ -26,6 +26,10 @@ var (
 	timeLayout       string = "2006-01-02 15:04:05"
 	verbose          bool
 	reverseDirection bool
+	tzClientLockName string
+	tzClientLock     *time.Location
+	tzServerLockName string
+	tzServerLock     *time.Location = time.Local
 )
 
 func main() {
@@ -39,11 +43,33 @@ func main() {
 	flag.StringVar(&lockTimeStr, "t", "", "强制按指定时间提供数据，格式示例: 2006-01-02 15:04:05")
 	flag.BoolVar(&verbose, "v", false, "显示详细信息用于调试。")
 	flag.BoolVar(&reverseDirection, "rd", false, "反转风向数据。")
+	flag.StringVar(&tzClientLockName, "tc", "", "强制客户端时区为指定的 IANA 时区名称，例如 Europe/Paris 。")
+	flag.StringVar(&tzServerLockName, "ts", "Local", "强制 XLSX 文件时区为指定的 IANA 时区名称，例如 Asia/Tokyo 。")
 	flag.Parse()
 
 	if len(xlsxFilePath) < 6 {
 		log.Println("你必须使用 -f <文件.xlsx> 指定一个 XLSX 文件。")
 		return
+	}
+
+	if len(tzClientLockName) > 0 {
+		if tzClientLockName == "Local" {
+			tzClientLock = time.Local
+		} else {
+			tzClientLock = nameToTimezone(tzClientLockName)
+			if tzClientLock == nil {
+				log.Println("警告：客户端锁定时区名称不正确，使用客户端经纬度时区。")
+				tzClientLockName = ""
+			}
+		}
+	}
+	if len(tzServerLockName) > 0 && tzServerLockName != "Local" {
+		tzServerLock = nameToTimezone(tzServerLockName)
+		if tzServerLock == nil {
+			log.Println("警告： XLSX 文件锁定时区名称不正确，使用 Local 时区。")
+			tzServerLockName = "Local"
+			tzClientLock = time.Local
+		}
 	}
 
 	if len(lockTimeStr) > 0 {
@@ -62,6 +88,8 @@ func main() {
 		"XLSX 文件路径: " + xlsxFilePath,
 		"基准日期: " + baseDayDate.Format(timeLayout),
 		"强制时间: " + lockTime.Format(timeLayout),
+		"锁定客户端时区: " + tzClientLockName,
+		"锁定 XLSX 文件时区: " + tzServerLockName,
 		"HTTP 接口地址: " + listenHost + uri,
 		"APPID 限制: " + appids,
 		"强制重新加载: " + strconv.FormatBool(forceReload),

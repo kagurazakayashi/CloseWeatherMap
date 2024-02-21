@@ -131,7 +131,11 @@ func reCalcDays(rows [][]string) [][]string {
 }
 
 func genTime(timeData string) (bool, time.Time) {
-	gTime, err := time.ParseInLocation(timeLayout, timeData, time.Local)
+	var tz *time.Location = time.Local
+	if len(tzServerLockName) > 0 {
+		tz = tzServerLock
+	}
+	gTime, err := time.ParseInLocation(timeLayout, timeData, tz)
 	if err != nil {
 		return false, time.Time{}
 	}

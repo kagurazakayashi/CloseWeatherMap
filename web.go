@@ -72,10 +72,15 @@ func handlerRoot(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(info))
 		return
 	}
-	tzStr, tz := latLonToTimezone(latN, lonN)
+	var tzStr string = tzClientLockName
+	var tz *time.Location = tzClientLock
+	if len(tzStr) == 0 {
+		tzStr, tz = latLonToTimezone(latN, lonN)
+	}
 	var locTz *time.Location = time.Now().Location()
+	var locStr string = locTz.String()
 	if verbose {
-		log.Println("输入时区:", tzStr, ",UTC", getUTCOffset(tz), "; 当前时区:", locTz.String(), ",UTC", getUTCOffset(locTz))
+		log.Println("输入时区:", tzStr, ",UTC", getUTCOffset(tz), "; 本机时区:", locStr, ",UTC", getUTCOffset(locTz))
 	}
 	if len(date) == 8 {
 		genBaseDay(date)
@@ -84,7 +89,11 @@ func handlerRoot(w http.ResponseWriter, r *http.Request) {
 		reloadXLSX()
 	}
 	var nowTime time.Time = nowTime()
-	nowTime = nowTime.In(tz)
+	if len(tzClientLockName) > 0 {
+		nowTime = nowTime.In(tzClientLock)
+	} else {
+		nowTime = nowTime.In(tz)
+	}
 	var row []string = nowTimeData(nowTime)
 	if len(row) == 0 {
 		info = "错误：没有查询到数据。"
