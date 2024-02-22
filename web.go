@@ -7,15 +7,17 @@ import (
 	"time"
 )
 
-func initweb() bool {
+func initweb() {
 	http.HandleFunc(uri, handlerRoot)
 	log.Println("启动 HTTP 服务: http://" + listenHost + uri)
-	err := http.ListenAndServe(listenHost, nil)
-	if err != nil {
-		log.Println("错误：无法启动 HTTP 服务:", err.Error())
-		return false
+	server = &http.Server{Addr: listenHost}
+	go startServer()
+}
+
+func startServer() {
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Printf("错误：无法启动 HTTP 服务: %v", err)
 	}
-	return true
 }
 
 func handlerRoot(w http.ResponseWriter, r *http.Request) {

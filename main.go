@@ -1,16 +1,22 @@
-//go:generate goversioninfo -icon=icon/icon.ico -manifest=main.exe.manifest
+//go:generate goversioninfo -icon=ico/icon.ico -manifest=main.exe.manifest
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
 var (
+	server           *http.Server
 	xlsxFilePath     string
 	titles           []string
 	datas            [][]string
@@ -30,6 +36,7 @@ var (
 	tzClientLock     *time.Location
 	tzServerLockName string
 	tzServerLock     *time.Location = time.Local
+	hostEntry        string
 )
 
 func main() {
@@ -45,6 +52,7 @@ func main() {
 	flag.BoolVar(&reverseDirection, "rd", false, "反转风向数据。")
 	flag.StringVar(&tzClientLockName, "tc", "", "强制客户端时区为指定的 IANA 时区名称，例如 Europe/Paris 。")
 	flag.StringVar(&tzServerLockName, "ts", "Local", "强制 XLSX 文件时区为指定的 IANA 时区名称，例如 Asia/Tokyo 。")
+	flag.StringVar(&hostEntry, "host", "", "启动时临时添加一条项目到 hosts 文件中，结束时删除。格式: `[IP] [HOST]`")
 	flag.Parse()
 
 	if len(xlsxFilePath) < 6 {
@@ -99,9 +107,17 @@ func main() {
 
 	reloadXLSX()
 
-	if !initweb() {
-		return
-	}
+	hostsAdd()
+
+	initweb()
+
+	log.Println("按 Ctrl+C 退出。")
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT)
+	<-quit
+
+	exit()
 }
 
 func genBaseDay(baseDayI string) bool { // ->baseDayDate
@@ -159,4 +175,16 @@ func reloadXLSX() {
 		}
 	}
 	log.Println("读取文件:", xlsxFilePath, "完成，数据量:", dataLen)
+}
+
+func exit() {
+	log.Println("正在停止...")
+	hostsRm()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := server.Shutdown(ctx); err != nil {
+		log.Printf("警告：强制结束服务器: %v", err)
+	}
+	log.Println("退出。")
+	os.Exit(0)
 }

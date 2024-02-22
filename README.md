@@ -23,8 +23,9 @@
 - `-rd`: 反转风向数据。
 - `-tc`: 强制客户端时区为指定的 IANA 时区名称，例如 `Europe/Paris` 。
 - `-ts`: 强制 XLSX 文件时区为指定的 IANA 时区名称，例如 `Asia/Tokyo` 。
+- `-host`: 启动时临时添加一条项目到 hosts 文件中，结束时删除。例如 `"127.0.0.1 api.openweathermap.org"`
 
-示例: `xlsweather -f testdata.xlsx -r -d 20240331 -l :80 -u /data/2.5/weather -a GGEkzWHqaaua3pdyRjzp7RiwTkvEpimV`
+示例: `xlsweather -f testdata.xlsx -v`
 
 按 `Ctrl+C` 可中止应用程序
 
