@@ -26,10 +26,23 @@ func getHostsFilePath() string {
 	}
 }
 
+func permissionAlert(err error) {
+	var errinfo string = err.Error()
+	errinfo = strings.ToLower(errinfo)
+	if strings.Contains(errinfo, "permission") || strings.Contains(errinfo, "access is denied") {
+		var pword string = "root"
+		if runtime.GOOS == "windows" {
+			pword = "管理员"
+		}
+		log.Println("提示：请以", pword, "权限运行本程序，以使用 hosts 文件自动编辑功能。")
+	}
+}
+
 func entryExists(entry, filePath string) bool {
 	file, err := os.Open(filePath)
 	if err != nil {
-		log.Println("Error opening file:", err)
+		log.Println("错误：不能打开 hosts 文件:", err)
+		permissionAlert(err)
 		return false
 	}
 	defer file.Close()
@@ -60,20 +73,25 @@ func addEntryToHosts(entry, filePath string) {
 		return
 	}
 
-	if err := ensureTrailingNewline(filePath); err != nil {
+	err := ensureTrailingNewline(filePath)
+	if err != nil {
 		fmt.Println("错误：不能写入 hosts 文件:", err)
+		permissionAlert(err)
 		return
 	}
 
 	file, err := os.OpenFile(filePath, os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		log.Println("错误：不能打开 hosts 文件:", err)
+		permissionAlert(err)
 		return
 	}
 	defer file.Close()
 
-	if _, err := file.WriteString(entry + "\n"); err != nil {
+	_, err = file.WriteString(entry + "\n")
+	if err != nil {
 		log.Println("错误：不能写入 hosts 文件:", err)
+		permissionAlert(err)
 		return
 	}
 
@@ -84,6 +102,7 @@ func removeEntryFromHosts(entry, filePath string) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		log.Println("错误：不能打开 hosts 文件:", err)
+		permissionAlert(err)
 		return
 	}
 	defer file.Close()
@@ -101,13 +120,16 @@ func removeEntryFromHosts(entry, filePath string) {
 	file, err = os.OpenFile(filePath, os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Println("错误：不能打开 hosts 文件:", err)
+		permissionAlert(err)
 		return
 	}
 	defer file.Close()
 
 	for _, line := range lines {
-		if _, err := file.WriteString(line + "\n"); err != nil {
+		_, err := file.WriteString(line + "\n")
+		if err != nil {
 			log.Println("错误：不能写入 hosts 文件:", err)
+			permissionAlert(err)
 			return
 		}
 	}

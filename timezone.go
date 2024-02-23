@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/zsefvlol/timezonemapper"
 )
@@ -19,9 +20,11 @@ func latLonToTimezone(lat float64, lon float64) (string, *time.Location) {
 	// Get timezone string from lat/long
 	var timezone string = timezonemapper.LatLngToTimezoneString(lat, lon)
 	// Should print "Timezone: Asia/Shanghai"
-	fmt.Printf("Timezone: %s\n", timezone)
 	// Load location from timezone
-	loc, _ := time.LoadLocation(timezone)
+	loc, err := time.LoadLocation(timezone)
+	if err != nil {
+		log.Println("时区加载失败:", timezone, err)
+	}
 	// Parse time string with location
 	// t, _ := time.ParseInLocation("2006-01-02 15:04:05", "2010-01-01 00:00:00", loc)
 	// Should print
@@ -33,7 +36,10 @@ func latLonToTimezone(lat float64, lon float64) (string, *time.Location) {
 }
 
 func nameToTimezone(name string) *time.Location {
-	loc, _ := time.LoadLocation(name)
+	loc, err := time.LoadLocation(name)
+	if err != nil {
+		log.Println("时区加载失败:", name, err)
+	}
 	return loc
 }
 

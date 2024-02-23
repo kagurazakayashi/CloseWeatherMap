@@ -225,6 +225,8 @@ func nowTimeData(uTime time.Time) []string {
 					isOKs = "是"
 				}
 				fmt.Println("时间", uTime.Format(timeLayout), "在", startTime.Format(timeLayout), "～", endTime.Format(timeLayout), "区间？", isOKs)
+			} else if isOK {
+				log.Println("时间", uTime.Format(timeLayout), "在", startTime.Format(timeLayout), "～", endTime.Format(timeLayout), "区间。")
 			}
 			if isOK {
 				return row

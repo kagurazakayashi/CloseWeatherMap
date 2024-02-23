@@ -40,7 +40,7 @@ var (
 )
 
 func main() {
-	log.Println("XLSWeather 1.1.0  " + time.Now().Format(timeLayout))
+	log.Println("XLSWeather 1.2.0  " + time.Now().Format(timeLayout))
 	flag.StringVar(&xlsxFilePath, "f", "", "XLSX 文件路径。")
 	flag.StringVar(&baseDay, "d", "", "基准日期(YYYYMMDD)，为空则为当前日期。")
 	flag.StringVar(&listenHost, "l", "127.0.0.1:80", "HTTP 接口所使用的 <IP>:<端口号>，不提供 IP 则允许所有 IP。")
