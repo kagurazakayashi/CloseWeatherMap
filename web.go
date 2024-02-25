@@ -96,7 +96,8 @@ func handlerRoot(w http.ResponseWriter, r *http.Request) {
 	} else {
 		nowTime = nowTime.In(tz)
 	}
-	var row []string = nowTimeData(nowTime)
+
+	var row []string = nowTimeData(nowTime, tz)
 	if len(row) == 0 {
 		info = "错误：没有查询到数据。"
 		log.Println(info)
@@ -105,7 +106,9 @@ func handlerRoot(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var response string = genXML(genDic(row))
-	log.Println("->", response)
+	if verbose {
+		log.Println("->", response)
+	}
 	w.Write([]byte(response))
 }
 

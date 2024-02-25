@@ -45,13 +45,19 @@ func loadXLSX(loginfo bool) ([]string, [][]string) {
 	// 	fmt.Println(i, row)
 	// }
 
+	for i, row := range rows {
+		for j, cell := range row {
+			rows[i][j] = trimExtraWhitespace(cell)
+		}
+	}
+
 	return rows[0], reCalcDays(rows[1:])
 }
 
 func reverseDirectionAndTimeDatas(rows [][]string) [][]string {
 	for i, row := range rows {
 		// 補充相對日期
-		var timeStr = trimExtraWhitespace(row[1])
+		var timeStr = row[1]
 		var timeArr []string = strings.Split(timeStr, ":")
 		if len(timeArr) == 1 {
 			timeArr = append(timeArr, timeArr[0])
@@ -69,7 +75,7 @@ func reverseDirectionAndTimeDatas(rows [][]string) [][]string {
 			log.Println("错误: 无法解析时间数据:", timeStr)
 			continue
 		}
-		var baseDayStr string = trimExtraWhitespace(row[0])
+		var baseDayStr string = row[0]
 		baseDay, err := strconv.Atoi(baseDayStr)
 		if err != nil {
 			log.Println("错误: 无法解析日期数据:", baseDayStr)
@@ -81,7 +87,7 @@ func reverseDirectionAndTimeDatas(rows [][]string) [][]string {
 		}
 		rows[i][1] = baseDaye.Format(timeLayout)
 		// 處理風向
-		direction, err := strconv.ParseFloat(strings.ReplaceAll(trimExtraWhitespace(row[6]), ",", ""), 64)
+		direction, err := strconv.ParseFloat(strings.ReplaceAll(row[6], ",", ""), 64)
 		if err != nil {
 			log.Println("错误: 无法解析风向数据:", row[6])
 			continue
@@ -102,8 +108,8 @@ func reCalcDays(rows [][]string) [][]string {
 	var oldHour int = -1
 	var nDay int = 0
 	for i, row := range rows {
-		var days string = trimExtraWhitespace(row[0])
-		var time string = trimExtraWhitespace(row[1])
+		var days string = row[0]
+		var time string = row[1]
 		var timeArr []string = strings.Split(time, ":")
 		day, err := strconv.Atoi(days)
 		if err != nil {
@@ -130,8 +136,8 @@ func reCalcDays(rows [][]string) [][]string {
 	return rows
 }
 
-func genTime(timeData string) (bool, time.Time) {
-	var tz *time.Location = time.Local
+func genTime(timeData string, iTimezone *time.Location) (bool, time.Time) {
+	var tz *time.Location = iTimezone
 	if len(tzServerLockName) > 0 {
 		tz = tzServerLock
 	}
@@ -159,21 +165,24 @@ func genTime(timeData string) (bool, time.Time) {
 	// return true, time.Date(nowTime.Year(), nowTime.Month(), nowTime.Day(), startHour, startMinute, 0, 0, time.Local)
 }
 
-func isCurrentTimeInRange(currentTime, startTime, endTime time.Time) bool {
+func isCurrentTimeInRange(currentTime, startTime, endTime time.Time) int8 {
 	// fmt.Println(currentTime.Location(), startTime.Location(), endTime.Location())
+	// 開始時間晚於結束時間
 	if startTime.After(endTime) {
-		return false
+		return -2
 	}
+	// 當前時間早於開始時間
 	if currentTime.Before(startTime) {
-		return false
+		return -1
 	}
+	// 當前時間晚於結束時間
 	if currentTime.After(endTime) {
-		return false
+		return 1
 	}
-	return true
+	return 0
 }
 
-func nowTimeData(uTime time.Time) []string {
+func nowTimeData(uTime time.Time, iTimezone *time.Location) []string {
 	// var realTime time.Time = nowTime()
 	// var daysApart int = daysApart(baseDayDate, realTime) + 1
 	for i, row := range datas {
@@ -182,18 +191,20 @@ func nowTimeData(uTime time.Time) []string {
 		// 	continue
 		// }
 		if verbose {
-			fmt.Println("行", i, ":", row)
+			fmt.Println("\n" + viewRow(i+2, row))
 		}
+
 		// if rowDay > daysApart {
 		// 	break
 		// }
 		// if rowDay != daysApart {
 		// 	continue
 		// }
-		isOK, startTime := genTime(row[1])
+		isOK, startTime := genTime(row[1], time.Local)
 		if !isOK {
 			continue
 		}
+		startTime = startTime.In(iTimezone)
 		// if rowDay-1 > 0 {
 		// 	startTime = startTime.AddDate(0, 0, rowDay-1)
 		// }
@@ -204,10 +215,11 @@ func nowTimeData(uTime time.Time) []string {
 			fmt.Println("警告：达到数据末尾，返回最后的数据。")
 			return row
 		} else {
-			isOK, endTime := genTime(datas[i+1][1])
+			isOK, endTime := genTime(datas[i+1][1], time.Local)
 			if !isOK {
 				continue
 			}
+			endTime = endTime.In(iTimezone)
 			// if rowDay-1 > 0 {
 			// 	endTime = endTime.AddDate(0, 0, rowDay-1)
 			// }
@@ -218,15 +230,22 @@ func nowTimeData(uTime time.Time) []string {
 			// 	endTime = endTime.AddDate(0, 0, 1)
 			// }
 			endTime = endTime.Add(-1 * time.Second)
-			isOK = isCurrentTimeInRange(uTime, startTime, endTime)
+			var timeRange int8 = isCurrentTimeInRange(uTime, startTime, endTime)
+			if i == 0 && timeRange == -1 {
+				fmt.Println("警告：未到数据开始时间，返回第一个数据。")
+				return row
+			}
+			isOK = timeRange == 0
 			if verbose {
 				var isOKs string = "否"
 				if isOK {
 					isOKs = "是"
 				}
-				fmt.Println("时间", uTime.Format(timeLayout), "在", startTime.Format(timeLayout), "～", endTime.Format(timeLayout), "区间？", isOKs)
+				fmt.Println("本地时间", uTime.Local(), "在", startTime.Local(), "～", endTime.Local(), "区间？", isOKs)
+				fmt.Println(iTimezone, "时间", uTime, "在", startTime, "～", endTime, "区间？", isOKs)
 			} else if isOK {
-				log.Println("时间", uTime.Format(timeLayout), "在", startTime.Format(timeLayout), "～", endTime.Format(timeLayout), "区间。")
+				log.Println(viewRow(i+2, row))
+				log.Println(iTimezone, "时区 UTC +", getUTCOffset(iTimezone), "当地时间", uTime.Format(timeLayout), "数据时间", startTime.Format(timeLayout))
 			}
 			if isOK {
 				return row

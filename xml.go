@@ -33,7 +33,7 @@ func genDic(row []string) map[string]string {
 		if stringInSlice(key, ignoreKeys) {
 			continue
 		}
-		dataDic[key] = trimExtraWhitespace(row[id])
+		dataDic[key] = row[id]
 	}
 	return dataDic
 }

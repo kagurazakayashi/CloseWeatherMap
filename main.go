@@ -21,6 +21,7 @@ var (
 	titles           []string
 	datas            [][]string
 	dataLen          int
+	dataLenLen       int
 	listenHost       string
 	appids           string
 	uri              string
@@ -35,12 +36,13 @@ var (
 	tzClientLockName string
 	tzClientLock     *time.Location
 	tzServerLockName string
-	tzServerLock     *time.Location = time.Local
+	tzServerLock     *time.Location
 	hostEntry        string
 )
 
 func main() {
 	log.Println("XLSWeather 1.2.0  " + time.Now().Format(timeLayout))
+	fmt.Println("帮助和更新: https://github.com/kagurazakayashi/xlsweather")
 	flag.StringVar(&xlsxFilePath, "f", "", "XLSX 文件路径。")
 	flag.StringVar(&baseDay, "d", "", "基准日期(YYYYMMDD)，为空则为当前日期。")
 	flag.StringVar(&listenHost, "l", "127.0.0.1:80", "HTTP 接口所使用的 <IP>:<端口号>，不提供 IP 则允许所有 IP。")
@@ -51,7 +53,7 @@ func main() {
 	flag.BoolVar(&verbose, "v", false, "显示详细信息用于调试。")
 	flag.BoolVar(&reverseDirection, "rd", false, "反转风向数据。")
 	flag.StringVar(&tzClientLockName, "tc", "", "强制客户端时区为指定的 IANA 时区名称，例如 Europe/Paris 。")
-	flag.StringVar(&tzServerLockName, "ts", "Local", "强制 XLSX 文件时区为指定的 IANA 时区名称，例如 Asia/Tokyo 。")
+	flag.StringVar(&tzServerLockName, "ts", "", "强制 XLSX 文件时区为指定的 IANA 时区名称，例如 Asia/Tokyo 。")
 	flag.StringVar(&hostEntry, "host", "", "启动时临时添加一条项目到 hosts 文件中，结束时删除。格式: `[IP] [HOST]`")
 	flag.Parse()
 
@@ -71,12 +73,15 @@ func main() {
 			}
 		}
 	}
-	if len(tzServerLockName) > 0 && tzServerLockName != "Local" {
-		tzServerLock = nameToTimezone(tzServerLockName)
-		if tzServerLock == nil {
-			log.Println("警告： XLSX 文件锁定时区名称不正确，使用 Local 时区。")
-			tzServerLockName = "Local"
-			tzClientLock = time.Local
+	if len(tzServerLockName) > 0 {
+		if tzServerLockName == "Local" {
+			tzServerLock = time.Local
+		} else {
+			tzServerLock = nameToTimezone(tzServerLockName)
+			if tzServerLock == nil {
+				log.Println("警告：XLSX 文件锁定时区名称不正确，使用客户端经纬度时区。")
+				tzServerLockName = ""
+			}
 		}
 	}
 
@@ -166,15 +171,18 @@ func reloadXLSX() {
 	}
 	datas = reverseDirectionAndTimeDatas(datas)
 	dataLen = len(datas)
+	dataLenLen = len(strconv.Itoa(dataLen))
 	if verbose {
-		for _, row := range titles {
-			fmt.Println(row)
-		}
-		for _, row := range datas {
-			fmt.Println(row)
+		fmt.Println("行", fmt.Sprintf("%0*d", dataLenLen, 1), ": |", strings.Join(titles, " | "), "|")
+		for i, row := range datas {
+			fmt.Println(viewRow(i+2, row))
 		}
 	}
 	log.Println("读取文件:", xlsxFilePath, "完成，数据量:", dataLen)
+}
+
+func viewRow(line int, row []string) string {
+	return fmt.Sprintf("行 %0*d: | %s |", dataLenLen, line, strings.Join(row, " | "))
 }
 
 func exit() {
