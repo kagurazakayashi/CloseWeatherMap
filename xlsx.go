@@ -81,6 +81,7 @@ func reverseDirectionAndTimeDatas(rows [][]string) [][]string {
 			log.Println("错误: 无法解析日期数据:", baseDayStr)
 			continue
 		}
+		// 在读取XLS的时候，由于比较日期需要有一个完整的日期对象，所以这里我用了当前计算机的年月日，和表格里的时分来新建的日期对象。由于这时候还没有任何网络请求，所以这里用的是 time.Local 本地时区。
 		var baseDaye time.Time = time.Date(baseDayDate.Year(), baseDayDate.Month(), baseDayDate.Day(), hour, minute, 0, 0, time.Local)
 		if baseDay > 1 {
 			baseDaye = baseDaye.AddDate(0, 0, baseDay-1)
@@ -200,35 +201,28 @@ func nowTimeData(uTime time.Time, iTimezone *time.Location) []string {
 		// if rowDay != daysApart {
 		// 	continue
 		// }
-		isOK, startTime := genTime(row[1], time.Local)
+		var useTimeZone *time.Location = iTimezone
+		if convertTimeZone {
+			useTimeZone = time.Local
+		}
+		isOK, startTime := genTime(row[1], useTimeZone)
 		if !isOK {
 			continue
 		}
-		startTime = startTime.In(iTimezone)
-		// if rowDay-1 > 0 {
-		// 	startTime = startTime.AddDate(0, 0, rowDay-1)
-		// }
-		// if daysApart > 0 {
-		// 	startTime = startTime.AddDate(0, 0, daysApart-1)
-		// }
+		if convertTimeZone {
+			startTime = startTime.In(iTimezone)
+		}
 		if i == len(datas)-1 {
 			fmt.Println("警告：达到数据末尾，返回最后的数据。")
 			return row
 		} else {
-			isOK, endTime := genTime(datas[i+1][1], time.Local)
+			isOK, endTime := genTime(datas[i+1][1], useTimeZone)
 			if !isOK {
 				continue
 			}
-			endTime = endTime.In(iTimezone)
-			// if rowDay-1 > 0 {
-			// 	endTime = endTime.AddDate(0, 0, rowDay-1)
-			// }
-			// if daysApart > 0 {
-			// 	endTime = endTime.AddDate(0, 0, daysApart-1)
-			// }
-			// if datas[i][0] != datas[i+1][0] {
-			// 	endTime = endTime.AddDate(0, 0, 1)
-			// }
+			if convertTimeZone {
+				endTime = endTime.In(iTimezone)
+			}
 			endTime = endTime.Add(-1 * time.Second)
 			var timeRange int8 = isCurrentTimeInRange(uTime, startTime, endTime)
 			if i == 0 && timeRange == -1 {
@@ -241,7 +235,7 @@ func nowTimeData(uTime time.Time, iTimezone *time.Location) []string {
 				if isOK {
 					isOKs = "是"
 				}
-				fmt.Println("本地时间", uTime.Local(), "在", startTime.Local(), "～", endTime.Local(), "区间？", isOKs)
+				// fmt.Println("本地时间", uTime.Local(), "在", startTime.Local(), "～", endTime.Local(), "区间？", isOKs)
 				fmt.Println(iTimezone, "时间", uTime, "在", startTime, "～", endTime, "区间？", isOKs)
 			} else if isOK {
 				log.Println(viewRow(i+2, row))

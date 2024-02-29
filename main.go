@@ -38,6 +38,7 @@ var (
 	tzServerLockName string
 	tzServerLock     *time.Location
 	hostEntry        string
+	convertTimeZone  bool
 )
 
 func main() {
@@ -55,6 +56,7 @@ func main() {
 	flag.StringVar(&tzClientLockName, "tc", "", "强制客户端时区为指定的 IANA 时区名称，例如 Europe/Paris 。")
 	flag.StringVar(&tzServerLockName, "ts", "", "强制 XLSX 文件时区为指定的 IANA 时区名称，例如 Asia/Tokyo 。")
 	flag.StringVar(&hostEntry, "host", "", "启动时临时添加一条项目到 hosts 文件中，结束时删除。格式: `[IP] [HOST]`")
+	flag.BoolVar(&convertTimeZone, "ct", false, "将 XLSX 文件中的时间视为本地时区并转换为客户端时区，否则直接视为客户端时区。")
 	flag.Parse()
 
 	if len(xlsxFilePath) < 6 {
