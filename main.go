@@ -17,7 +17,7 @@ import (
 
 var (
 	server           *http.Server
-	xlsxFilePath     string
+	xlsxFilePath     string = ""
 	titles           []string
 	datas            [][]string
 	dataLen          int
@@ -44,7 +44,12 @@ var (
 func main() {
 	log.Println("XLSWeather 1.2.0  " + time.Now().Format(timeLayout))
 	fmt.Println("帮助和更新: https://github.com/kagurazakayashi/xlsweather")
-	flag.StringVar(&xlsxFilePath, "f", "", "XLSX 文件路径。")
+
+	if len(os.Args) >= 2 && strings.HasSuffix(os.Args[1], ".xlsx") {
+		xlsxFilePath = os.Args[1]
+	}
+
+	flag.StringVar(&xlsxFilePath, "f", xlsxFilePath, "电子表格文件路径。如果作为第一个参数提供，可不加 -f 。")
 	flag.StringVar(&baseDay, "d", "", "基准日期(YYYYMMDD)，为空则为当前日期。")
 	flag.StringVar(&listenHost, "l", "127.0.0.1:80", "HTTP 接口所使用的 <IP>:<端口号>，不提供 IP 则允许所有 IP。")
 	flag.StringVar(&uri, "u", "/data/2.5/weather", "HTTP 接口的 URI。")
@@ -54,13 +59,14 @@ func main() {
 	flag.BoolVar(&verbose, "v", false, "显示详细信息用于调试。")
 	flag.BoolVar(&reverseDirection, "rd", false, "反转风向数据。")
 	flag.StringVar(&tzClientLockName, "tc", "", "强制客户端时区为指定的 IANA 时区名称，例如 Europe/Paris 。")
-	flag.StringVar(&tzServerLockName, "ts", "", "强制 XLSX 文件时区为指定的 IANA 时区名称，例如 Asia/Tokyo 。")
+	flag.StringVar(&tzServerLockName, "ts", "", "强制 XLSX 文件时区为指定的 IANA 时区名称，例如 Asia/Shanghai 。")
 	flag.StringVar(&hostEntry, "host", "", "启动时临时添加一条项目到 hosts 文件中，结束时删除。格式: `[IP] [HOST]`")
 	flag.BoolVar(&convertTimeZone, "ct", false, "将 XLSX 文件中的时间视为本地时区并转换为客户端时区，否则直接视为客户端时区。")
 	flag.Parse()
 
 	if len(xlsxFilePath) < 6 {
-		log.Println("你必须使用 -f <文件.xlsx> 指定一个 XLSX 文件。")
+		fmt.Println("使用方法: xlsweather <电子表格文件路径.xlsx> [配置参数] 。")
+		fmt.Println("要获取配置参数列表，请使用 xlsweather -h 。")
 		return
 	}
 
