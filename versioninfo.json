@@ -2,13 +2,13 @@
     "FixedFileInfo": {
         "FileVersion": {
             "Major": 1,
-            "Minor": 1,
+            "Minor": 2,
             "Patch": 0,
             "Build": 0
         },
         "ProductVersion": {
             "Major": 1,
-            "Minor": 1,
+            "Minor": 2,
             "Patch": 0,
             "Build": 0
         },
@@ -22,14 +22,14 @@
         "Comments": "实现类似于 openweathermap 的接口和返回信息，但从一个 XLSX 电子表格文件中读取。",
         "CompanyName": "yashi.moe",
         "FileDescription": "实现类似于 openweathermap 的接口和返回信息，但从一个 XLSX 电子表格文件中读取。",
-        "FileVersion": "1.1.0.0",
+        "FileVersion": "1.2.0.0",
         "InternalName": "xlsweather",
         "LegalCopyright": "2024, Kagurazaka Yashi.",
         "LegalTrademarks": "yashi.moe",
         "OriginalFilename": "main.exe",
         "PrivateBuild": "",
         "ProductName": "XLSWeather",
-        "ProductVersion": "1.1.0.0",
+        "ProductVersion": "1.2.0.0",
         "SpecialBuild": ""
     },
     "VarFileInfo": {
