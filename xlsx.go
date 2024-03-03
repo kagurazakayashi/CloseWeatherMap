@@ -81,7 +81,6 @@ func reverseDirectionAndTimeDatas(rows [][]string) [][]string {
 			log.Println("错误: 无法解析日期数据:", baseDayStr)
 			continue
 		}
-		// 在读取XLS的时候，由于比较日期需要有一个完整的日期对象，所以这里我用了当前计算机的年月日，和表格里的时分来新建的日期对象。由于这时候还没有任何网络请求，所以这里用的是 time.Local 本地时区。
 		var baseDaye time.Time = time.Date(baseDayDate.Year(), baseDayDate.Month(), baseDayDate.Day(), hour, minute, 0, 0, time.Local)
 		if baseDay > 1 {
 			baseDaye = baseDaye.AddDate(0, 0, baseDay-1)
@@ -93,11 +92,13 @@ func reverseDirectionAndTimeDatas(rows [][]string) [][]string {
 			log.Println("错误: 无法解析风向数据:", row[6])
 			continue
 		}
-		// 小於180時+180，大於180時-180
-		if direction < 180 {
-			direction += 180
-		} else if direction > 180 {
-			direction -= 180
+		if reverseDirection {
+			// 小於180時+180，大於180時-180
+			if direction < 180 {
+				direction += 180
+			} else if direction > 180 {
+				direction -= 180
+			}
 		}
 		rows[i][6] = strconv.FormatFloat(direction, 'f', -1, 64)
 	}
@@ -225,10 +226,6 @@ func nowTimeData(uTime time.Time, iTimezone *time.Location) []string {
 			}
 			endTime = endTime.Add(-1 * time.Second)
 			var timeRange int8 = isCurrentTimeInRange(uTime, startTime, endTime)
-			if i == 0 && timeRange == -1 {
-				fmt.Println("警告：未到数据开始时间，返回第一个数据。")
-				return row
-			}
 			isOK = timeRange == 0
 			if verbose {
 				var isOKs string = "否"
@@ -237,9 +234,13 @@ func nowTimeData(uTime time.Time, iTimezone *time.Location) []string {
 				}
 				// fmt.Println("本地时间", uTime.Local(), "在", startTime.Local(), "～", endTime.Local(), "区间？", isOKs)
 				fmt.Println(iTimezone, "时间", uTime, "在", startTime, "～", endTime, "区间？", isOKs)
-			} else if isOK {
+			} else {
 				log.Println(viewRow(i+2, row))
 				log.Println(iTimezone, "时区 UTC +", getUTCOffset(iTimezone), "当地时间", uTime.Format(timeLayout), "数据时间", startTime.Format(timeLayout))
+			}
+			if i == 0 && timeRange == -1 {
+				log.Println("警告：未到数据开始时间，返回了第一条数据。")
+				return row
 			}
 			if isOK {
 				return row
